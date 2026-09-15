@@ -1,0 +1,21 @@
+export const PROJECT_MANAGER = 1;
+export const SITE_MANAGER = 2;
+export const SITE_SUPERVISOR = 3;
+export const QUALITY_OFFICER = 4;
+export const SAFETY_OFFICER = 5;
+export const SURVEYOR = 6;
+export const HR_EXECUTIVE = 7;
+export const FINANCE_EXECUTIVE = 8;
+export const PROCUREMENT_EXECUTIVE = 9;
+
+export const DESIGNATION_LIST = [
+    PROJECT_MANAGER,
+    SITE_MANAGER,
+    SITE_SUPERVISOR,
+    QUALITY_OFFICER,
+    SAFETY_OFFICER,
+    SURVEYOR,
+    HR_EXECUTIVE,
+    FINANCE_EXECUTIVE,
+    PROCUREMENT_EXECUTIVE,
+];
