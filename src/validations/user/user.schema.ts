@@ -58,15 +58,17 @@ export const createUserSchema = (
           "any.required": "Password is required.",
         }),
 
-      designation: Joi.string().trim().max(100).required().messages({
-        "string.empty": "Designation is required.",
-        "string.max": "Designation must be at most 100 characters long.",
+      designationId: Joi.number().integer().positive().required().messages({
+        "number.base": "Designation ID must be a number.",
+        "number.integer": "Designation ID must be an integer.",
+        "number.positive": "Designation ID must be greater than 0.",
         "any.required": "Designation is required.",
       }),
 
-      department: Joi.string().trim().max(100).required().messages({
-        "string.empty": "Department is required.",
-        "string.max": "Department must be at most 100 characters long.",
+      departmentId: Joi.number().integer().positive().required().messages({
+        "number.base": "Department ID must be a number.",
+        "number.integer": "Department ID must be an integer.",
+        "number.positive": "Department ID must be greater than 0.",
         "any.required": "Department is required.",
       }),
 
@@ -82,6 +84,11 @@ export const createUserSchema = (
         "number.integer": "Reporting manager ID must be an integer.",
         "number.positive": "Reporting manager ID must be greater than 0.",
       }),
+      grade: Joi.string()
+        .trim()
+        .max(50)
+        .allow(null, "")
+        .optional(),
 
       isActive: Joi.boolean().optional().default(true),
     });

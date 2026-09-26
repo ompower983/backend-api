@@ -241,7 +241,7 @@ export const getAllUser = async (req: Request, res: Response): Promise<any> => {
           {
             model: User,
             as: "manager",
-            attributes: ["id", "employeeCode", "fullName", "designation"],
+            attributes: ["id", "employeeCode", "fullName", "designationId"],
           },
         ],
       },
@@ -269,17 +269,64 @@ export const getUser = async (req: Request, res: Response): Promise<any> => {
       attributes: {
         exclude: ["password"],
       },
+
       include: [
+        // --------------------------------------------------
+        // Role
+        // --------------------------------------------------
         {
           model: Role,
           as: "role",
           attributes: ["id", "name"],
         },
+
+        // --------------------------------------------------
+        // Department
+        // --------------------------------------------------
+        {
+          model: Department,
+          as: "department",
+          attributes: ["id", "name"],
+        },
+
+        // --------------------------------------------------
+        // Designation
+        // --------------------------------------------------
+        {
+          model: Designation,
+          as: "designation",
+          attributes: ["id", "name"],
+        },
+
+        // --------------------------------------------------
+        // Reporting Manager
+        // --------------------------------------------------
         {
           model: User,
           as: "manager",
-          attributes: ["id", "employeeCode", "fullName", "designation"],
+          attributes: [
+            "id",
+            "employeeCode",
+            "fullName",
+            "designationId",
+            "departmentId",
+          ],
+          include: [
+            {
+              model: Department,
+              as: "department",
+              attributes: ["id", "name"],
+            },
+            {
+              model: Designation,
+              as: "designation",
+              attributes: ["id", "name"],
+            },
+          ],
         },
+        // --------------------------------------------------
+        // Employees reporting to this user
+        // --------------------------------------------------
         {
           model: User,
           as: "employees",
@@ -287,9 +334,21 @@ export const getUser = async (req: Request, res: Response): Promise<any> => {
             "id",
             "employeeCode",
             "fullName",
-            "designation",
-            "department",
+            "designationId",
+            "departmentId",
             "isActive",
+          ],
+          include: [
+            {
+              model: Department,
+              as: "department",
+              attributes: ["id", "name"],
+            },
+            {
+              model: Designation,
+              as: "designation",
+              attributes: ["id", "name"],
+            },
           ],
         },
       ],
@@ -418,7 +477,7 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
     // Validate Designation
     // ----------------------------------------------------
 
-    if (designationId !=null) {
+    if (designationId != null) {
       const designation = await Designation.findByPk(designationId);
 
       if (!designation) {

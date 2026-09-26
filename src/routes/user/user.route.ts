@@ -19,7 +19,7 @@ import { createUser, deleteUser, getAllUser, getUser, updateUser } from "../../c
 const router: Router = Router();
 
 router.post(
-    "/",
+    "/create",
     authMiddleware,
     isAdmin,
     isHR,
@@ -28,7 +28,7 @@ router.post(
 );
 
 router.get(
-    "/",
+    "/all",
     authMiddleware,
     isAdmin,
     isHR,
