@@ -141,7 +141,10 @@ export const createUser = async (req: Request, res: Response): Promise<any> => {
 // GET ALL USERS
 // ============================================================
 
-export const getAllUser = async (req: Request, res: Response): Promise<any> => {
+export const getAllUser = async (
+  req: Request,
+  res: Response,
+): Promise<any> => {
   const {
     page,
     pageSize,
@@ -149,33 +152,71 @@ export const getAllUser = async (req: Request, res: Response): Promise<any> => {
     sortField,
     sortOrder,
     roleId,
-    department,
+    departmentId,
+    designationId,
     status,
   } = req.query;
 
   const pageNum = page ? parseInt(page as string, 10) : 1;
   const size = pageSize ? parseInt(pageSize as string, 10) : 10;
-  const searchTerm = search ? (search as string) : "";
-  const sortFieldStr = sortField ? (sortField as string) : "createdAt";
-  const sortOrderStr = sortOrder ? (sortOrder as string).toUpperCase() : "DESC";
+
+  const searchTerm = search ? String(search).trim() : "";
+
+  const sortFieldStr = sortField
+    ? String(sortField)
+    : "createdAt";
+
+  const sortOrderStr = sortOrder
+    ? String(sortOrder).toUpperCase()
+    : "DESC";
 
   try {
+    // ----------------------------------------------------
+    // WHERE CLAUSE
+    // ----------------------------------------------------
+
     const whereClause: any = {};
+
+    // Do not show Admin users in normal user listing
     whereClause.roleId = {
       [Op.ne]: ADMIN,
     };
+
+    // ----------------------------------------------------
+    // ROLE FILTER
+    // ----------------------------------------------------
 
     if (roleId) {
       whereClause.roleId = Number(roleId);
     }
 
-    if (department) {
-      whereClause.department = department as string;
+    // ----------------------------------------------------
+    // DEPARTMENT FILTER
+    // ----------------------------------------------------
+
+    if (departmentId) {
+      whereClause.departmentId = Number(departmentId);
     }
+
+    // ----------------------------------------------------
+    // DESIGNATION FILTER
+    // ----------------------------------------------------
+
+    if (designationId) {
+      whereClause.designationId = Number(designationId);
+    }
+
+    // ----------------------------------------------------
+    // STATUS FILTER
+    // ----------------------------------------------------
 
     if (status !== undefined) {
       whereClause.isActive = status === "true";
     }
+
+    // ----------------------------------------------------
+    // SEARCH
+    // ----------------------------------------------------
 
     if (searchTerm) {
       whereClause[Op.or] = [
@@ -194,21 +235,11 @@ export const getAllUser = async (req: Request, res: Response): Promise<any> => {
             [Op.like]: `%${searchTerm}%`,
           },
         },
-        {
-          designation: {
-            [Op.like]: `%${searchTerm}%`,
-          },
-        },
-        {
-          department: {
-            [Op.like]: `%${searchTerm}%`,
-          },
-        },
       ];
     }
 
     // ----------------------------------------------------
-    // Pagination
+    // PAGINATION
     // ----------------------------------------------------
 
     const result = await paginate({
@@ -216,43 +247,58 @@ export const getAllUser = async (req: Request, res: Response): Promise<any> => {
       page: pageNum,
       pageSize: size,
       whereClause,
-      searchQuery: searchTerm,
-      searchFields: [
-        "employeeCode",
-        "fullName",
-        "email",
-        "designation",
-        "department",
-      ],
+      searchQuery: "",
+      searchFields: [],
       sortField: sortFieldStr,
       sortOrder: sortOrderStr as "ASC" | "DESC",
       options: {
         attributes: {
           exclude: ["password"],
         },
-
         include: [
           {
             model: Role,
             as: "role",
             attributes: ["id", "name"],
           },
-
+          {
+            model: Department,
+            as: "department",
+            attributes: ["id", "name"],
+          },
+          {
+            model: Designation,
+            as: "designation",
+            attributes: ["id", "name"],
+          },
           {
             model: User,
             as: "manager",
-            attributes: ["id", "employeeCode", "fullName", "designationId"],
+            attributes: [
+              "id",
+              "employeeCode",
+              "fullName",
+              "designationId",
+              "departmentId",
+            ],
           },
         ],
       },
     });
 
-    return successResponse(res, 200, "Users fetched successfully", result);
+    return successResponse(
+      res,
+      200,
+      "Users fetched successfully",
+      result,
+    );
   } catch (error: any) {
     return catchResponse(
       res,
       "Error fetching users",
-      error?.errors?.[0]?.message || error?.message || "Unknown error",
+      error?.errors?.[0]?.message ||
+      error?.message ||
+      "Unknown error",
     );
   }
 };

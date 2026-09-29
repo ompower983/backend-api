@@ -5,5 +5,4 @@ const router = Router();
 
 router.get("/", getDashboard);
 
-
 export default router;

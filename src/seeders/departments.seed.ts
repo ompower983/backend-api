@@ -7,7 +7,7 @@ const departments = [
     },
     {
         id: HR_DEPARTMENT,
-        name: "Human Resources",
+        name: "HR",
     },
     {
         id: PROJECTS,
