@@ -253,7 +253,7 @@ export const updateUserSchema = (
           "number.positive":
             "Reporting manager ID must be greater than 0.",
         }),
-
+      grade: Joi.string().allow("", null).optional(),
       isActive: Joi.boolean().optional(),
     }).min(1);
 
