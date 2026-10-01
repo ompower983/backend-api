@@ -211,37 +211,104 @@ export const updateUserSchema = (
 ) => {
   try {
     const schema = Joi.object({
-      employeeCode: Joi.string().trim().min(1).max(50).optional(),
+      // --------------------------------------------------------
+      // Employee Code
+      // --------------------------------------------------------
+      employeeCode: Joi.string()
+        .trim()
+        .min(1)
+        .max(50)
+        .optional()
+        .messages({
+          "string.empty": "Employee code cannot be empty.",
+          "string.min": "Employee code must be at least 1 character long.",
+          "string.max": "Employee code must be at most 50 characters long.",
+        }),
 
-      fullName: Joi.string().trim().min(3).max(100).optional().messages({
-        "string.min": "Full name must be at least 3 characters long.",
-        "string.max": "Full name must be at most 100 characters long.",
-      }),
+      // --------------------------------------------------------
+      // Full Name
+      // --------------------------------------------------------
+      fullName: Joi.string()
+        .trim()
+        .min(3)
+        .max(100)
+        .optional()
+        .messages({
+          "string.empty": "Full name cannot be empty.",
+          "string.min": "Full name must be at least 3 characters long.",
+          "string.max": "Full name must be at most 100 characters long.",
+        }),
 
-      email: Joi.string().trim().email().max(150).optional().messages({
-        "string.email": "Please enter a valid Email id.",
-        "string.max": "Email must be at most 150 characters long.",
-      }),
+      // --------------------------------------------------------
+      // Email
+      // --------------------------------------------------------
+      email: Joi.string()
+        .trim()
+        .email()
+        .max(150)
+        .optional()
+        .messages({
+          "string.empty": "Email cannot be empty.",
+          "string.email": "Please enter a valid Email id.",
+          "string.max": "Email must be at most 150 characters long.",
+        }),
 
+      // --------------------------------------------------------
+      // Phone
+      // --------------------------------------------------------
       phone: Joi.string()
         .trim()
         .pattern(/^[0-9]{7,15}$/)
         .optional()
         .messages({
+          "string.empty": "Phone number cannot be empty.",
           "string.pattern.base":
             "Phone number must be between 7 and 15 digits and contain only numbers.",
         }),
 
-      designation: Joi.string().trim().max(100).optional(),
+      // --------------------------------------------------------
+      // Designation ID
+      // --------------------------------------------------------
+      designationId: Joi.number()
+        .integer()
+        .positive()
+        .optional()
+        .messages({
+          "number.base": "Designation ID must be a number.",
+          "number.integer": "Designation ID must be an integer.",
+          "number.positive": "Designation ID must be greater than 0.",
+        }),
 
-      department: Joi.string().trim().max(100).optional(),
+      // --------------------------------------------------------
+      // Department ID
+      // --------------------------------------------------------
+      departmentId: Joi.number()
+        .integer()
+        .positive()
+        .optional()
+        .messages({
+          "number.base": "Department ID must be a number.",
+          "number.integer": "Department ID must be an integer.",
+          "number.positive": "Department ID must be greater than 0.",
+        }),
 
-      roleId: Joi.number().integer().positive().optional().messages({
-        "number.base": "Role ID must be a number.",
-        "number.integer": "Role ID must be an integer.",
-        "number.positive": "Role ID must be greater than 0.",
-      }),
+      // --------------------------------------------------------
+      // Role ID
+      // --------------------------------------------------------
+      roleId: Joi.number()
+        .integer()
+        .positive()
+        .optional()
+        .messages({
+          "number.base": "Role ID must be a number.",
+          "number.integer": "Role ID must be an integer.",
+          "number.positive": "Role ID must be greater than 0.",
+        }),
 
+      // --------------------------------------------------------
+      // Reporting Manager
+      // null is allowed to remove reporting manager
+      // --------------------------------------------------------
       reportsToUserId: Joi.number()
         .integer()
         .positive()
@@ -253,14 +320,40 @@ export const updateUserSchema = (
           "number.positive":
             "Reporting manager ID must be greater than 0.",
         }),
-      grade: Joi.string().allow("", null).optional(),
-      isActive: Joi.boolean().optional(),
-    }).min(1);
+
+      // --------------------------------------------------------
+      // Grade
+      // Empty string and null are allowed
+      // --------------------------------------------------------
+      grade: Joi.string()
+        .trim()
+        .max(50)
+        .allow("", null)
+        .optional()
+        .messages({
+          "string.max": "Grade must be at most 50 characters long.",
+        }),
+
+      // --------------------------------------------------------
+      // Active / Inactive
+      // --------------------------------------------------------
+      isActive: Joi.boolean()
+        .optional()
+        .messages({
+          "boolean.base": "isActive must be true or false.",
+        }),
+    })
+      .min(1)
+      .unknown(false);
 
     const { error } = schema.validate(req.body);
 
     if (error) {
-      return errorResponse(res, 400, error.details[0]?.message);
+      return errorResponse(
+        res,
+        400,
+        error.details[0]?.message || "Invalid request data",
+      );
     }
 
     next();
