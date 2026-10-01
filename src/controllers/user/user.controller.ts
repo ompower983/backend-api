@@ -535,19 +535,22 @@ export const updateUser = async (req: Request, res: Response): Promise<any> => {
     // Update
     // ----------------------------------------------------
 
-    await user.update({
-      employeeCode,
-      fullName,
-      email,
-      phone,
-      designationId,
-      departmentId,
-      roleId,
-      reportsToUserId,
-      isActive,
-      grade: grade || null,
-    });
+    const updateData = Object.fromEntries(
+      Object.entries({
+        employeeCode,
+        fullName,
+        email,
+        phone,
+        designationId,
+        departmentId,
+        roleId,
+        reportsToUserId,
+        isActive,
+        grade,
+      }).filter(([, value]) => value !== undefined)
+    );
 
+    await user.update(updateData);
     // ----------------------------------------------------
     // Return updated user
     // ----------------------------------------------------

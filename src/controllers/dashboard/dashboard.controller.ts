@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { User } from "../../models";
+import { Op } from "sequelize";
+import { User, Role } from "../../models";
 import { catchResponse, successResponse } from "../../utils";
 
 export const getDashboard = async (
@@ -7,16 +8,35 @@ export const getDashboard = async (
     res: Response
 ): Promise<any> => {
     try {
-        const totalUsers = await User.count();
+        // Find Admin role
+        const adminRole = await Role.findOne({
+            where: {
+                name: "Admin",
+            },
+        });
+
+        const userWhere: any = {};
+
+        if (adminRole) {
+            userWhere.roleId = {
+                [Op.ne]: adminRole.id,
+            };
+        }
+
+        const totalUsers = await User.count({
+            where: userWhere,
+        });
 
         const activeUsers = await User.count({
             where: {
+                ...userWhere,
                 isActive: true,
             },
         });
 
         const inactiveUsers = await User.count({
             where: {
+                ...userWhere,
                 isActive: false,
             },
         });
